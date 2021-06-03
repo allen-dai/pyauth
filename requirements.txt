@@ -6,7 +6,7 @@ httptools==0.2.0
 pydantic==1.8.2
 pymongo==3.11.4
 python-dotenv==0.17.1
-PyYAML==5.4.1
+pyyaml==5.4.1
 starlette==0.14.2
 typing-extensions==3.10.0.0
 uvicorn==0.14.0

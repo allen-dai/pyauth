@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from model import User, UserLogin
 from auth import Auth
 
-import pymongo, os, json
+import pymongo, os, json, uvicorn
 
 load_dotenv()
 URL = os.getenv("DB_URL")

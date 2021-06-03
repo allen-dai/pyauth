@@ -2,11 +2,11 @@ from typing import Optional
 from pydantic import BaseModel
 
 class User(BaseModel):
-    id: str
     username: str
     password: str
     email: str
-    create_date: str
+    f_name: str
+    l_name: str
 
 
 

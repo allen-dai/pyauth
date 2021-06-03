@@ -31,11 +31,14 @@ def register(user: User):
     cursor = client[DB][COLL].find({"username":user.username})
     if list(cursor)!=[]:
         raise HTTPException(status_code=400, detail="Username unavailble")
+
+    #User is a User object from model.py. <class 'model.User'>
     user = user.dict()
 
     user["password"] = auth.pwd_hash(user["password"].encode("utf-8"))
     client[DB][COLL].insert_one(user)
     return {"message":"Ok, registered"}
+
 
 @app.post("/login/")
 def login(user: UserLogin, response: Response):
@@ -44,14 +47,20 @@ def login(user: UserLogin, response: Response):
 
     return: jwt
     """
-    cursor = client[DB][COLL].find_one({"username": user.username, "password": auth.pwd_hash(user.password.encode("utf-8"))})
-    
-    if cursor!=None:
-        token = auth.jwt_encode(user.username)
-        response.set_cookie(key="token", value=token)
-        return {"message":"Login success, token set"}
+    cursor = client[DB][COLL].find_one({"username": user.username, "password": auth.pwd_hash(user.password)})
+    if cursor==None:
+        raise HTTPException(status_code=400, detail="Invalid username/password")
 
-    return {"message":"Invalid Username/Password"}
+    token = auth.jwt_encode(user.username)
+    response.set_cookie(
+            key="Authorization",
+            value=f"Bearer {token}",
+            httponly=True,
+            path="/",
+            secure=True
+            )
+    return {"message":"Login success, token set"}
+
         
 
 

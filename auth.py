@@ -5,12 +5,11 @@ from dotenv import load_dotenv
 from datetime import datetime, timedelta
 
 load_dotenv()
-PWD_SECRET = os.getenv("PWD_SECRET")
 JWT_SECRET = os.getenv("JWT_SECRET")
 
 class Auth:
     def pwd_hash(self, password):
-        return hashlib.sha256(password).hexdigest()
+        return hashlib.sha256(password.encode("utf-8")).hexdigest()
 
     def jwt_encode(self, username):
         payload = {

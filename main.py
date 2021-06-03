@@ -23,17 +23,29 @@ def index():
 
 @app.post("/register/")
 def register(user: User):
-    cusor = client[DB][COLL].find({"username":user.username})
-    if cursor!=None:
+    """
+    pymongo - find() will always return a cursor object. List(cursor) to check if is username availble
+
+    return: str
+    """
+    cursor = client[DB][COLL].find({"username":user.username})
+    if list(cursor)!=[]:
         raise HTTPException(status_code=400, detail="Username unavailble")
     user = user.dict()
-    user["password"] = auth.pwd_hash(user.password.encode("utf-8"))
-    client[DB][COLL].insert_one(user.dict())
+
+    user["password"] = auth.pwd_hash(user["password"].encode("utf-8"))
+    client[DB][COLL].insert_one(user)
     return {"message":"Ok, registered"}
 
 @app.post("/login/")
 def login(user: UserLogin, response: Response):
-    cursor = client[DB][COLL].find_one({"username": auth.pwd_hash(user.username.encode("utf-8")), "password": user.password})
+    """
+    pymongo - find_one() return None if not exist, else JSON/Dict
+
+    return: jwt
+    """
+    cursor = client[DB][COLL].find_one({"username": user.username, "password": auth.pwd_hash(user.password.encode("utf-8"))})
+    
     if cursor!=None:
         token = auth.jwt_encode(user.username)
         response.set_cookie(key="token", value=token)

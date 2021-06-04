@@ -22,9 +22,14 @@ class Auth:
 
     def jwt_decode(self, token):
         try:
-            payload = jwt.decode(token, JWT_SECRET, algorithm=["HS256"])
+            payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
             return payload["sub"]
         except jwt.ExpiredSignatureError:
-            raise HTTPException(status_code=401, details="Token has expired")
+            raise HTTPException(status_code=401, detail="Token has expired")
         except jwt.InvalidTokenError:
-            raise HTTPException(status_code=401, details="Invalid Token")
+            raise HTTPException(status_code=401, detail="Invalid Token")
+
+    def extract_token(self, token):
+        token = token.split(" ")[-1]
+        token = token[:-1]
+        return token

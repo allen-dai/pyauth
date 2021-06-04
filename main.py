@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Response, HTTPException
+from fastapi import FastAPI, Response, HTTPException, Request
 from dotenv import load_dotenv
 
 from model import User, UserLogin
@@ -41,7 +41,7 @@ def register(user: User):
 
 
 @app.post("/login/")
-def login(user: UserLogin, response: Response):
+def login(user: UserLogin, resp: Response):
     """
     pymongo - find_one() return None if not exist, else JSON/Dict
 
@@ -52,14 +52,31 @@ def login(user: UserLogin, response: Response):
         raise HTTPException(status_code=400, detail="Invalid username/password")
 
     token = auth.jwt_encode(user.username)
-    response.set_cookie(
-            key="Authorization",
-            value=f"Bearer {token}",
-            httponly=True,
-            path="/",
-            secure=True
+    resp.set_cookie(
+            key="authorization",
+            value=f"bearer {token}",
+            path="/"
             )
     return {"message":"Login success, token set"}
+
+@app.get("/refresh_service/")
+def refresh_service(req: Request, resp: Response):
+    auth_bearer= req.headers["cookie"] 
+    token = auth.extract_token(auth_bearer)
+
+    username = auth.jwt_decode(token) #Function will break and raise error if token is not valid or have expired
+
+    access_token = auth.jwt_encode(username)
+
+    resp.set_cookie(
+            key="authorization",
+            value=f"bearer {token}",
+            path="/"
+            )
+
+    return {"message":"Refreshed"}
+
+
 
         
 
